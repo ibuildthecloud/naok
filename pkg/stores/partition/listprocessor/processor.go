@@ -258,19 +258,16 @@ func getLimit(apiOp *types.APIRequest) int {
 	return limit
 }
 
-// FilterList accepts a channel of unstructured objects and a slice of filters and returns the filtered list.
+// FilterList accepts a slice of unstructured objects and a slice of filters and returns the filtered list.
 // Filters are ANDed together.
-func FilterList(list <-chan []unstructured.Unstructured, filters []OrFilter) []unstructured.Unstructured {
+func FilterList(list []unstructured.Unstructured, filters []OrFilter) []unstructured.Unstructured {
+	if len(filters) == 0 {
+		return list
+	}
 	result := []unstructured.Unstructured{}
-	for items := range list {
-		for _, item := range items {
-			if len(filters) == 0 {
-				result = append(result, item)
-				continue
-			}
-			if matchesAll(item.Object, filters) {
-				result = append(result, item)
-			}
+	for _, item := range list {
+		if matchesAll(item.Object, filters) {
+			result = append(result, item)
 		}
 	}
 	return result
@@ -281,7 +278,7 @@ func matchesOne(obj map[string]interface{}, filter Filter) bool {
 	var ok bool
 	subField := []string{}
 	for !ok && len(filter.field) > 0 {
-		objValue, ok = data.GetValue(obj, filter.field...)
+		objValue, ok = data.GetValueFromAny(obj, filter.field...)
 		if !ok {
 			subField = append(subField, filter.field[len(filter.field)-1])
 			filter.field = filter.field[:len(filter.field)-1]
@@ -354,11 +351,11 @@ func SortList(list []unstructured.Unstructured, s Sort) []unstructured.Unstructu
 		return list
 	}
 	sort.Slice(list, func(i, j int) bool {
-		leftPrime := convert.ToString(data.GetValueN(list[i].Object, s.primaryField...))
-		rightPrime := convert.ToString(data.GetValueN(list[j].Object, s.primaryField...))
+		leftPrime := getAndConvert(list[i].Object, s.primaryField...)
+		rightPrime := getAndConvert(list[j].Object, s.primaryField...)
 		if leftPrime == rightPrime && len(s.secondaryField) > 0 {
-			leftSecond := convert.ToString(data.GetValueN(list[i].Object, s.secondaryField...))
-			rightSecond := convert.ToString(data.GetValueN(list[j].Object, s.secondaryField...))
+			leftSecond := getAndConvert(list[i].Object, s.secondaryField...)
+			rightSecond := getAndConvert(list[j].Object, s.secondaryField...)
 			if s.secondaryOrder == ASC {
 				return leftSecond < rightSecond
 			}
@@ -370,6 +367,11 @@ func SortList(list []unstructured.Unstructured, s Sort) []unstructured.Unstructu
 		return rightPrime < leftPrime
 	})
 	return list
+}
+
+func getAndConvert(object map[string]interface{}, keys ...string) string {
+	val, _ := data.GetValueFromAny(object, keys...)
+	return convert.ToString(val)
 }
 
 // PaginateList returns a subset of the result based on the pagination criteria as well as the total number of pages the caller can expect.

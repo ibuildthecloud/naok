@@ -329,8 +329,8 @@ github.com/rancher/norman v0.0.0-20240326183200-dd207ee11dda h1:3ObSlUUnZRLFZAP9
 github.com/rancher/norman v0.0.0-20240326183200-dd207ee11dda/go.mod h1:CsrtakSMYQKWlmjwCaqyazoVVOQBX/JwvZSxIHhWxxk=
 github.com/rancher/remotedialer v0.3.1 h1:YQ/UZy3w1CtC8dZvR51/e0K9qNFKiPh5zLFlDghNsBg=
 github.com/rancher/remotedialer v0.3.1/go.mod h1:Aa9TrMVN3uRAKIAxio93T/hAyqad+054Luceu7sVmsE=
-github.com/rancher/wrangler/v2 v2.2.0-rc1 h1:5T1Bk87tmwLgqVXsfhrQzr7oeMIXxbnIQcD4qwFA47c=
-github.com/rancher/wrangler/v2 v2.2.0-rc1/go.mod h1:YtKhKhNDVdm4lybNttbmh1MmR2p123vi6Gik+4MkUEk=
+github.com/rancher/wrangler/v2 v2.2.0-rc2 h1:b8HPe21hg2/wbH26wyblSG5XfMYjbL6jQjiYjrXiq08=
+github.com/rancher/wrangler/v2 v2.2.0-rc2/go.mod h1:YtKhKhNDVdm4lybNttbmh1MmR2p123vi6Gik+4MkUEk=
 github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6LYCDYWNEvQ=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.9.0/go.mod h1:WtVeX8xhTBvf0smdhujwtBcq4Qrzq/fJaraNFVN+nFs=
