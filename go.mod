@@ -72,7 +72,7 @@ require (
 	github.com/urfave/cli/v2 v2.27.1
 	golang.org/x/sync v0.7.0
 	gopkg.in/yaml.v3 v3.0.1
-	helm.sh/helm/v3 v3.13.0
+	helm.sh/helm/v3 v3.17.0
 	k8s.io/api v0.31.1
 	k8s.io/apiextensions-apiserver v0.31.0
 	k8s.io/apimachinery v0.31.1
