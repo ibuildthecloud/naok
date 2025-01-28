@@ -264,8 +264,8 @@ func TestInformerListByOptions(t *testing.T) {
 		}
 		expectedTotal := len(expectedList.Items)
 		expectedContinueToken := "123"
-		indexer.EXPECT().ListByOptions(context.TODO(), lo, partitions, ns).Return(expectedList, expectedTotal, expectedContinueToken, nil)
-		list, total, continueToken, err := informer.ListByOptions(context.TODO(), lo, partitions, ns)
+		indexer.EXPECT().ListByOptions(context.Background(), lo, partitions, ns).Return(expectedList, expectedTotal, expectedContinueToken, nil)
+		list, total, continueToken, err := informer.ListByOptions(context.Background(), lo, partitions, ns)
 		assert.Nil(t, err)
 		assert.Equal(t, expectedList, list)
 		assert.Equal(t, len(expectedList.Items), total)
@@ -279,8 +279,8 @@ func TestInformerListByOptions(t *testing.T) {
 		lo := ListOptions{}
 		var partitions []partition.Partition
 		ns := "somens"
-		indexer.EXPECT().ListByOptions(context.TODO(), lo, partitions, ns).Return(nil, 0, "", fmt.Errorf("error"))
-		_, _, _, err := informer.ListByOptions(context.TODO(), lo, partitions, ns)
+		indexer.EXPECT().ListByOptions(context.Background(), lo, partitions, ns).Return(nil, 0, "", fmt.Errorf("error"))
+		_, _, _, err := informer.ListByOptions(context.Background(), lo, partitions, ns)
 		assert.NotNil(t, err)
 	}})
 	t.Parallel()

@@ -897,12 +897,12 @@ func TestListByOptions(t *testing.T) {
 
 			if test.expectedCountStmt != "" {
 				store.EXPECT().Prepare(test.expectedCountStmt).Return(stmt)
-				//store.EXPECT().QueryForRows(context.TODO(), stmt, test.expectedCountStmtArgs...).Return(rows, nil)
+				//store.EXPECT().QueryForRows(context.Background(), stmt, test.expectedCountStmtArgs...).Return(rows, nil)
 				store.EXPECT().ReadInt(rows).Return(len(test.expectedList.Items), nil)
 				store.EXPECT().CloseStmt(stmt).Return(nil)
 			}
 			txClient.EXPECT().Commit()
-			list, total, contToken, err := lii.executeQuery(context.TODO(), queryInfo)
+			list, total, contToken, err := lii.executeQuery(context.Background(), queryInfo)
 			if test.expectedErr == nil {
 				assert.Nil(t, err)
 			} else {
