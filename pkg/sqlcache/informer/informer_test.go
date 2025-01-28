@@ -64,7 +64,7 @@ func TestNewInformer(t *testing.T) {
 		txClient.EXPECT().Exec(gomock.Any()).Return(nil)
 		txClient.EXPECT().Commit().Return(nil)
 
-		informer, err := NewInformer(dynamicClient, fields, nil, gvk, dbClient, false, true)
+		informer, err := NewInformer(context.Background(), dynamicClient, fields, nil, gvk, dbClient, false, true)
 		assert.Nil(t, err)
 		assert.NotNil(t, informer.ByOptionsLister)
 		assert.NotNil(t, informer.SharedIndexInformer)
@@ -83,7 +83,7 @@ func TestNewInformer(t *testing.T) {
 		txClient.EXPECT().Exec(gomock.Any()).Return(nil)
 		txClient.EXPECT().Commit().Return(fmt.Errorf("error"))
 
-		_, err := NewInformer(dynamicClient, fields, nil, gvk, dbClient, false, true)
+		_, err := NewInformer(context.Background(), dynamicClient, fields, nil, gvk, dbClient, false, true)
 		assert.NotNil(t, err)
 	}})
 	tests = append(tests, testCase{description: "NewInformer() with errors returned from NewIndexer(), should return an error", test: func(t *testing.T) {
@@ -108,7 +108,7 @@ func TestNewInformer(t *testing.T) {
 		txClient.EXPECT().Exec(gomock.Any()).Return(nil)
 		txClient.EXPECT().Commit().Return(fmt.Errorf("error"))
 
-		_, err := NewInformer(dynamicClient, fields, nil, gvk, dbClient, false, true)
+		_, err := NewInformer(context.Background(), dynamicClient, fields, nil, gvk, dbClient, false, true)
 		assert.NotNil(t, err)
 	}})
 	tests = append(tests, testCase{description: "NewInformer() with errors returned from NewListOptionIndexer(), should return an error", test: func(t *testing.T) {
@@ -145,7 +145,7 @@ func TestNewInformer(t *testing.T) {
 		txClient.EXPECT().Exec(gomock.Any()).Return(nil)
 		txClient.EXPECT().Commit().Return(fmt.Errorf("error"))
 
-		_, err := NewInformer(dynamicClient, fields, nil, gvk, dbClient, false, true)
+		_, err := NewInformer(context.Background(), dynamicClient, fields, nil, gvk, dbClient, false, true)
 		assert.NotNil(t, err)
 	}})
 	tests = append(tests, testCase{description: "NewInformer() with transform func", test: func(t *testing.T) {
@@ -193,7 +193,7 @@ func TestNewInformer(t *testing.T) {
 		transformFunc := func(input interface{}) (interface{}, error) {
 			return "someoutput", nil
 		}
-		informer, err := NewInformer(dynamicClient, fields, transformFunc, gvk, dbClient, false, true)
+		informer, err := NewInformer(context.Background(), dynamicClient, fields, transformFunc, gvk, dbClient, false, true)
 		assert.Nil(t, err)
 		assert.NotNil(t, informer.ByOptionsLister)
 		assert.NotNil(t, informer.SharedIndexInformer)
@@ -229,7 +229,7 @@ func TestNewInformer(t *testing.T) {
 		transformFunc := func(input interface{}) (interface{}, error) {
 			return "someoutput", nil
 		}
-		_, err := NewInformer(dynamicClient, fields, transformFunc, gvk, dbClient, false, true)
+		_, err := NewInformer(context.Background(), dynamicClient, fields, transformFunc, gvk, dbClient, false, true)
 		assert.Error(t, err)
 		newInformer = cache.NewSharedIndexInformer
 	}})
