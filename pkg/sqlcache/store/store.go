@@ -36,6 +36,7 @@ const (
 type Store struct {
 	DBClient
 
+	ctx           context.Context
 	name          string
 	typ           reflect.Type
 	keyFunc       cache.KeyFunc
@@ -72,8 +73,9 @@ type DBClient interface {
 }
 
 // NewStore creates a SQLite-backed cache.Store for objects of the given example type
-func NewStore(example any, keyFunc cache.KeyFunc, c DBClient, shouldEncrypt bool, name string) (*Store, error) {
+func NewStore(ctx context.Context, example any, keyFunc cache.KeyFunc, c DBClient, shouldEncrypt bool, name string) (*Store, error) {
 	s := &Store{
+		ctx:           ctx,
 		name:          name,
 		typ:           reflect.TypeOf(example),
 		DBClient:      c,

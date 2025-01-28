@@ -4,6 +4,7 @@ Package factory provides a cache factory for the sql-based cache.
 package factory
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"sync"
@@ -44,7 +45,7 @@ type guardedInformer struct {
 	mutex    *sync.Mutex
 }
 
-type newInformer func(client dynamic.ResourceInterface, fields [][]string, transform cache.TransformFunc, gvk schema.GroupVersionKind, db sqlStore.DBClient, shouldEncrypt bool, namespace bool) (*informer.Informer, error)
+type newInformer func(ctx context.Context, client dynamic.ResourceInterface, fields [][]string, transform cache.TransformFunc, gvk schema.GroupVersionKind, db sqlStore.DBClient, shouldEncrypt bool, namespace bool) (*informer.Informer, error)
 
 type DBClient interface {
 	informer.DBClient
@@ -90,7 +91,7 @@ func NewCacheFactory() (*CacheFactory, error) {
 
 // CacheFor returns an informer for given GVK, using sql store indexed with fields, using the specified client. For virtual fields, they must be added by the transform function
 // and specified by fields to be used for later fields.
-func (f *CacheFactory) CacheFor(fields [][]string, transform cache.TransformFunc, client dynamic.ResourceInterface, gvk schema.GroupVersionKind, namespaced bool, watchable bool) (Cache, error) {
+func (f *CacheFactory) CacheFor(ctx context.Context, fields [][]string, transform cache.TransformFunc, client dynamic.ResourceInterface, gvk schema.GroupVersionKind, namespaced bool, watchable bool) (Cache, error) {
 	// First of all block Reset() until we are done
 	f.mutex.RLock()
 	defer f.mutex.RUnlock()
@@ -126,7 +127,7 @@ func (f *CacheFactory) CacheFor(fields [][]string, transform cache.TransformFunc
 
 		_, encryptResourceAlways := defaultEncryptedResourceTypes[gvk]
 		shouldEncrypt := f.encryptAll || encryptResourceAlways
-		i, err := f.newInformer(client, fields, transform, gvk, f.dbClient, shouldEncrypt, namespaced)
+		i, err := f.newInformer(ctx, client, fields, transform, gvk, f.dbClient, shouldEncrypt, namespaced)
 		if err != nil {
 			return Cache{}, err
 		}
