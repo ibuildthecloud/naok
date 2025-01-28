@@ -220,6 +220,7 @@ type TransformBuilder interface {
 }
 
 type Store struct {
+	ctx              context.Context
 	clientGetter     ClientGetter
 	notifier         RelationshipNotifier
 	cacheFactory     CacheFactory
@@ -233,13 +234,14 @@ type Store struct {
 type CacheFactoryInitializer func() (CacheFactory, error)
 
 type CacheFactory interface {
-	CacheFor(fields [][]string, transform cache.TransformFunc, client dynamic.ResourceInterface, gvk schema.GroupVersionKind, namespaced bool, watchable bool) (factory.Cache, error)
+	CacheFor(ctx context.Context, fields [][]string, transform cache.TransformFunc, client dynamic.ResourceInterface, gvk schema.GroupVersionKind, namespaced bool, watchable bool) (factory.Cache, error)
 	Reset() error
 }
 
 // NewProxyStore returns a Store implemented directly on top of kubernetes.
-func NewProxyStore(c SchemaColumnSetter, clientGetter ClientGetter, notifier RelationshipNotifier, scache virtualCommon.SummaryCache, factory CacheFactory) (*Store, error) {
+func NewProxyStore(ctx context.Context, c SchemaColumnSetter, clientGetter ClientGetter, notifier RelationshipNotifier, scache virtualCommon.SummaryCache, factory CacheFactory) (*Store, error) {
 	store := &Store{
+		ctx:              ctx,
 		clientGetter:     clientGetter,
 		notifier:         notifier,
 		columnSetter:     c,
@@ -290,7 +292,7 @@ func (s *Store) initializeNamespaceCache() error {
 	nsSchema := baseNSSchema
 
 	// make sure any relevant columns are set to the ns schema
-	if err := s.columnSetter.SetColumns(context.Background(), &nsSchema); err != nil {
+	if err := s.columnSetter.SetColumns(s.ctx, &nsSchema); err != nil {
 		return fmt.Errorf("failed to set columns for proxy stores namespace informer: %w", err)
 	}
 
@@ -311,7 +313,7 @@ func (s *Store) initializeNamespaceCache() error {
 	transformFunc := s.transformBuilder.GetTransformFunc(gvk)
 
 	// get the ns informer
-	nsInformer, err := s.cacheFactory.CacheFor(fields, transformFunc, &tablelistconvert.Client{ResourceInterface: client}, attributes.GVK(&nsSchema), false, true)
+	nsInformer, err := s.cacheFactory.CacheFor(s.ctx, fields, transformFunc, &tablelistconvert.Client{ResourceInterface: client}, attributes.GVK(&nsSchema), false, true)
 	if err != nil {
 		return err
 	}
@@ -751,7 +753,7 @@ func (s *Store) ListByPartitions(apiOp *types.APIRequest, schema *types.APISchem
 	fields = append(fields, getFieldForGVK(gvk)...)
 	transformFunc := s.transformBuilder.GetTransformFunc(gvk)
 
-	inf, err := s.cacheFactory.CacheFor(fields, transformFunc, &tablelistconvert.Client{ResourceInterface: client}, attributes.GVK(schema), attributes.Namespaced(schema), controllerschema.IsListWatchable(schema))
+	inf, err := s.cacheFactory.CacheFor(s.ctx, fields, transformFunc, &tablelistconvert.Client{ResourceInterface: client}, attributes.GVK(schema), attributes.Namespaced(schema), controllerschema.IsListWatchable(schema))
 	if err != nil {
 		return nil, 0, "", err
 	}

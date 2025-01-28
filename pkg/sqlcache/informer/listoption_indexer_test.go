@@ -61,7 +61,7 @@ func TestNewListOptionIndexer(t *testing.T) {
 		txClient.EXPECT().Exec(fmt.Sprintf(createLabelsTableIndexFmt, id, id)).Return(nil)
 		txClient.EXPECT().Commit().Return(nil)
 
-		loi, err := NewListOptionIndexer(fields, store, true)
+		loi, err := NewListOptionIndexer(context.Background(), fields, store, true)
 		assert.Nil(t, err)
 		assert.NotNil(t, loi)
 	}})
@@ -77,7 +77,7 @@ func TestNewListOptionIndexer(t *testing.T) {
 		txClient.EXPECT().Exec(gomock.Any()).Return(nil)
 		txClient.EXPECT().Commit().Return(fmt.Errorf("error"))
 
-		_, err := NewListOptionIndexer(fields, store, false)
+		_, err := NewListOptionIndexer(context.Background(), fields, store, false)
 		assert.NotNil(t, err)
 	}})
 	tests = append(tests, testCase{description: "NewListOptionIndexer() with error returned from Begin(), should return an error", test: func(t *testing.T) {
@@ -101,7 +101,7 @@ func TestNewListOptionIndexer(t *testing.T) {
 
 		store.EXPECT().BeginTx(gomock.Any(), true).Return(txClient, fmt.Errorf("error"))
 
-		_, err := NewListOptionIndexer(fields, store, false)
+		_, err := NewListOptionIndexer(context.Background(), fields, store, false)
 		assert.NotNil(t, err)
 	}})
 	tests = append(tests, testCase{description: "NewListOptionIndexer() with error from Exec() when creating fields table, should return an error", test: func(t *testing.T) {
@@ -127,7 +127,7 @@ func TestNewListOptionIndexer(t *testing.T) {
 		txClient.EXPECT().Exec(fmt.Sprintf(createFieldsTableFmt, id, `"metadata.name" TEXT, "metadata.creationTimestamp" TEXT, "metadata.namespace" TEXT, "something" TEXT`)).Return(nil)
 		txClient.EXPECT().Exec(fmt.Sprintf(createFieldsIndexFmt, id, "metadata.name", id, "metadata.name")).Return(fmt.Errorf("error"))
 
-		_, err := NewListOptionIndexer(fields, store, true)
+		_, err := NewListOptionIndexer(context.Background(), fields, store, true)
 		assert.NotNil(t, err)
 	}})
 	tests = append(tests, testCase{description: "NewListOptionIndexer() with error from create-labels, should return an error", test: func(t *testing.T) {
@@ -157,7 +157,7 @@ func TestNewListOptionIndexer(t *testing.T) {
 		txClient.EXPECT().Exec(fmt.Sprintf(createFieldsIndexFmt, id, fields[0][0], id, fields[0][0])).Return(nil)
 		txClient.EXPECT().Exec(fmt.Sprintf(createLabelsTableFmt, id, id)).Return(fmt.Errorf("error"))
 
-		_, err := NewListOptionIndexer(fields, store, true)
+		_, err := NewListOptionIndexer(context.Background(), fields, store, true)
 		assert.NotNil(t, err)
 	}})
 	tests = append(tests, testCase{description: "NewListOptionIndexer() with error from Commit(), should return an error", test: func(t *testing.T) {
@@ -189,7 +189,7 @@ func TestNewListOptionIndexer(t *testing.T) {
 		txClient.EXPECT().Exec(fmt.Sprintf(createLabelsTableIndexFmt, id, id)).Return(nil)
 		txClient.EXPECT().Commit().Return(fmt.Errorf("error"))
 
-		_, err := NewListOptionIndexer(fields, store, true)
+		_, err := NewListOptionIndexer(context.Background(), fields, store, true)
 		assert.NotNil(t, err)
 	}})
 
@@ -897,12 +897,12 @@ func TestListByOptions(t *testing.T) {
 
 			if test.expectedCountStmt != "" {
 				store.EXPECT().Prepare(test.expectedCountStmt).Return(stmt)
-				//store.EXPECT().QueryForRows(context.TODO(), stmt, test.expectedCountStmtArgs...).Return(rows, nil)
+				//store.EXPECT().QueryForRows(context.Background(), stmt, test.expectedCountStmtArgs...).Return(rows, nil)
 				store.EXPECT().ReadInt(rows).Return(len(test.expectedList.Items), nil)
 				store.EXPECT().CloseStmt(stmt).Return(nil)
 			}
 			txClient.EXPECT().Commit()
-			list, total, contToken, err := lii.executeQuery(context.TODO(), queryInfo)
+			list, total, contToken, err := lii.executeQuery(context.Background(), queryInfo)
 			if test.expectedErr == nil {
 				assert.Nil(t, err)
 			} else {

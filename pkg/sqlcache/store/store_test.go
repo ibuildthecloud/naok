@@ -313,7 +313,7 @@ func TestList(t *testing.T) {
 		c, _ := SetupMockDB(t)
 		store := SetupStore(t, c, shouldEncrypt)
 		r := &sql.Rows{}
-		c.EXPECT().QueryForRows(context.TODO(), store.listStmt).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.listStmt).Return(r, nil)
 		c.EXPECT().ReadObjects(r, reflect.TypeOf(testObject), store.shouldEncrypt).Return([]any{}, nil)
 		items := store.List()
 		assert.Len(t, items, 0)
@@ -324,7 +324,7 @@ func TestList(t *testing.T) {
 		store := SetupStore(t, c, shouldEncrypt)
 		fakeItemsToReturn := []any{"something1", 2, false}
 		r := &sql.Rows{}
-		c.EXPECT().QueryForRows(context.TODO(), store.listStmt).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.listStmt).Return(r, nil)
 		c.EXPECT().ReadObjects(r, reflect.TypeOf(testObject), store.shouldEncrypt).Return(fakeItemsToReturn, nil)
 		items := store.List()
 		assert.Equal(t, fakeItemsToReturn, items)
@@ -334,7 +334,7 @@ func TestList(t *testing.T) {
 		c, _ := SetupMockDB(t)
 		store := SetupStore(t, c, shouldEncrypt)
 		r := &sql.Rows{}
-		c.EXPECT().QueryForRows(context.TODO(), store.listStmt).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.listStmt).Return(r, nil)
 		c.EXPECT().ReadObjects(r, reflect.TypeOf(testObject), store.shouldEncrypt).Return(nil, fmt.Errorf("error"))
 		defer func() {
 			recover()
@@ -363,7 +363,7 @@ func TestListKeys(t *testing.T) {
 		c, _ := SetupMockDB(t)
 		store := SetupStore(t, c, shouldEncrypt)
 		r := &sql.Rows{}
-		c.EXPECT().QueryForRows(context.TODO(), store.listKeysStmt).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.listKeysStmt).Return(r, nil)
 		c.EXPECT().ReadStrings(r).Return([]string{"a", "b", "c"}, nil)
 		keys := store.ListKeys()
 		assert.Len(t, keys, 3)
@@ -374,7 +374,7 @@ func TestListKeys(t *testing.T) {
 		c, _ := SetupMockDB(t)
 		store := SetupStore(t, c, shouldEncrypt)
 		r := &sql.Rows{}
-		c.EXPECT().QueryForRows(context.TODO(), store.listKeysStmt).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.listKeysStmt).Return(r, nil)
 		c.EXPECT().ReadStrings(r).Return(nil, fmt.Errorf("error"))
 		keys := store.ListKeys()
 		assert.Len(t, keys, 0)
@@ -400,7 +400,7 @@ func TestGet(t *testing.T) {
 		c, _ := SetupMockDB(t)
 		store := SetupStore(t, c, shouldEncrypt)
 		r := &sql.Rows{}
-		c.EXPECT().QueryForRows(context.TODO(), store.getStmt, testObject.Id).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.getStmt, testObject.Id).Return(r, nil)
 		c.EXPECT().ReadObjects(r, reflect.TypeOf(testObject), store.shouldEncrypt).Return([]any{testObject}, nil)
 		item, exists, err := store.Get(testObject)
 		assert.Nil(t, err)
@@ -412,7 +412,7 @@ func TestGet(t *testing.T) {
 		c, _ := SetupMockDB(t)
 		store := SetupStore(t, c, shouldEncrypt)
 		r := &sql.Rows{}
-		c.EXPECT().QueryForRows(context.TODO(), store.getStmt, testObject.Id).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.getStmt, testObject.Id).Return(r, nil)
 		c.EXPECT().ReadObjects(r, reflect.TypeOf(testObject), store.shouldEncrypt).Return([]any{}, nil)
 		item, exists, err := store.Get(testObject)
 		assert.Nil(t, err)
@@ -424,7 +424,7 @@ func TestGet(t *testing.T) {
 		c, _ := SetupMockDB(t)
 		store := SetupStore(t, c, shouldEncrypt)
 		r := &sql.Rows{}
-		c.EXPECT().QueryForRows(context.TODO(), store.getStmt, testObject.Id).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.getStmt, testObject.Id).Return(r, nil)
 		c.EXPECT().ReadObjects(r, reflect.TypeOf(testObject), store.shouldEncrypt).Return(nil, fmt.Errorf("error"))
 		_, _, err := store.Get(testObject)
 		assert.NotNil(t, err)
@@ -450,7 +450,7 @@ func TestGetByKey(t *testing.T) {
 		c, _ := SetupMockDB(t)
 		store := SetupStore(t, c, shouldEncrypt)
 		r := &sql.Rows{}
-		c.EXPECT().QueryForRows(context.TODO(), store.getStmt, testObject.Id).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.getStmt, testObject.Id).Return(r, nil)
 		c.EXPECT().ReadObjects(r, reflect.TypeOf(testObject), store.shouldEncrypt).Return([]any{testObject}, nil)
 		item, exists, err := store.GetByKey(testObject.Id)
 		assert.Nil(t, err)
@@ -462,7 +462,7 @@ func TestGetByKey(t *testing.T) {
 		c, _ := SetupMockDB(t)
 		store := SetupStore(t, c, shouldEncrypt)
 		r := &sql.Rows{}
-		c.EXPECT().QueryForRows(context.TODO(), store.getStmt, testObject.Id).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.getStmt, testObject.Id).Return(r, nil)
 		c.EXPECT().ReadObjects(r, reflect.TypeOf(testObject), store.shouldEncrypt).Return([]any{}, nil)
 		item, exists, err := store.GetByKey(testObject.Id)
 		assert.Nil(t, err)
@@ -474,7 +474,7 @@ func TestGetByKey(t *testing.T) {
 		c, _ := SetupMockDB(t)
 		store := SetupStore(t, c, shouldEncrypt)
 		r := &sql.Rows{}
-		c.EXPECT().QueryForRows(context.TODO(), store.getStmt, testObject.Id).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.getStmt, testObject.Id).Return(r, nil)
 		c.EXPECT().ReadObjects(r, reflect.TypeOf(testObject), store.shouldEncrypt).Return(nil, fmt.Errorf("error"))
 		_, _, err := store.GetByKey(testObject.Id)
 		assert.NotNil(t, err)
@@ -504,7 +504,7 @@ func TestReplace(t *testing.T) {
 		r := &sql.Rows{}
 		c.EXPECT().BeginTx(gomock.Any(), true).Return(txC, nil)
 		txC.EXPECT().Stmt(store.listKeysStmt).Return(store.listKeysStmt)
-		c.EXPECT().QueryForRows(context.TODO(), store.listKeysStmt).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.listKeysStmt).Return(r, nil)
 		c.EXPECT().ReadStrings(r).Return([]string{testObject.Id}, nil)
 		txC.EXPECT().Stmt(store.deleteStmt).Return(store.deleteStmt)
 		txC.EXPECT().StmtExec(store.deleteStmt, testObject.Id)
@@ -520,7 +520,7 @@ func TestReplace(t *testing.T) {
 		r := &sql.Rows{}
 		c.EXPECT().BeginTx(gomock.Any(), true).Return(txC, nil)
 		txC.EXPECT().Stmt(store.listKeysStmt).Return(store.listKeysStmt)
-		c.EXPECT().QueryForRows(context.TODO(), store.listKeysStmt).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.listKeysStmt).Return(r, nil)
 		c.EXPECT().ReadStrings(r).Return([]string{}, nil)
 		c.EXPECT().Upsert(txC, store.upsertStmt, testObject.Id, testObject, store.shouldEncrypt)
 		txC.EXPECT().Commit()
@@ -542,7 +542,7 @@ func TestReplace(t *testing.T) {
 		r := &sql.Rows{}
 		c.EXPECT().BeginTx(gomock.Any(), true).Return(txC, nil)
 		txC.EXPECT().Stmt(store.listKeysStmt).Return(store.listKeysStmt)
-		c.EXPECT().QueryForRows(context.TODO(), store.listKeysStmt).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.listKeysStmt).Return(r, nil)
 		c.EXPECT().ReadStrings(r).Return(nil, fmt.Errorf("error"))
 		err := store.Replace([]any{testObject}, testObject.Id)
 		assert.NotNil(t, err)
@@ -554,7 +554,7 @@ func TestReplace(t *testing.T) {
 		r := &sql.Rows{}
 		c.EXPECT().BeginTx(gomock.Any(), true).Return(txC, nil)
 		txC.EXPECT().Stmt(store.listKeysStmt).Return(store.listKeysStmt)
-		c.EXPECT().QueryForRows(context.TODO(), store.listKeysStmt).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.listKeysStmt).Return(r, nil)
 		c.EXPECT().ReadStrings(r).Return(nil, fmt.Errorf("error"))
 		err := store.Replace([]any{testObject}, testObject.Id)
 		assert.NotNil(t, err)
@@ -566,7 +566,7 @@ func TestReplace(t *testing.T) {
 		r := &sql.Rows{}
 		c.EXPECT().BeginTx(gomock.Any(), true).Return(txC, nil)
 		txC.EXPECT().Stmt(store.listKeysStmt).Return(store.listKeysStmt)
-		c.EXPECT().QueryForRows(context.TODO(), store.listKeysStmt).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.listKeysStmt).Return(r, nil)
 		c.EXPECT().ReadStrings(r).Return([]string{testObject.Id}, nil)
 		txC.EXPECT().Stmt(store.deleteStmt).Return(store.deleteStmt)
 		txC.EXPECT().StmtExec(store.deleteStmt, testObject.Id).Return(fmt.Errorf("error"))
@@ -580,7 +580,7 @@ func TestReplace(t *testing.T) {
 		r := &sql.Rows{}
 		c.EXPECT().BeginTx(gomock.Any(), true).Return(txC, nil)
 		txC.EXPECT().Stmt(store.listKeysStmt).Return(store.listKeysStmt)
-		c.EXPECT().QueryForRows(context.TODO(), store.listKeysStmt).Return(r, nil)
+		c.EXPECT().QueryForRows(context.Background(), store.listKeysStmt).Return(r, nil)
 		c.EXPECT().ReadStrings(r).Return([]string{testObject.Id}, nil)
 		txC.EXPECT().Stmt(store.deleteStmt).Return(store.deleteStmt)
 		txC.EXPECT().StmtExec(store.deleteStmt, testObject.Id).Return(nil)
@@ -638,7 +638,7 @@ func SetupMockDB(t *testing.T) (*MockDBClient, *MockTXClient) {
 	return dbC, txC
 }
 func SetupStore(t *testing.T, client *MockDBClient, shouldEncrypt bool) *Store {
-	store, err := NewStore(testStoreObject{}, testStoreKeyFunc, client, shouldEncrypt, "testStoreObject")
+	store, err := NewStore(context.Background(), testStoreObject{}, testStoreKeyFunc, client, shouldEncrypt, "testStoreObject")
 	if err != nil {
 		t.Error(err)
 	}

@@ -36,6 +36,7 @@ const (
 type Store struct {
 	DBClient
 
+	ctx           context.Context
 	name          string
 	typ           reflect.Type
 	keyFunc       cache.KeyFunc
@@ -72,8 +73,9 @@ type DBClient interface {
 }
 
 // NewStore creates a SQLite-backed cache.Store for objects of the given example type
-func NewStore(example any, keyFunc cache.KeyFunc, c DBClient, shouldEncrypt bool, name string) (*Store, error) {
+func NewStore(ctx context.Context, example any, keyFunc cache.KeyFunc, c DBClient, shouldEncrypt bool, name string) (*Store, error) {
 	s := &Store{
+		ctx:           ctx,
 		name:          name,
 		typ:           reflect.TypeOf(example),
 		DBClient:      c,
@@ -84,7 +86,7 @@ func NewStore(example any, keyFunc cache.KeyFunc, c DBClient, shouldEncrypt bool
 	}
 
 	// once multiple informerfactories are needed, this can accept the case where table already exists error is received
-	txC, err := s.BeginTx(context.Background(), true)
+	txC, err := s.BeginTx(ctx, true)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +120,7 @@ func NewStore(example any, keyFunc cache.KeyFunc, c DBClient, shouldEncrypt bool
 /* Core methods */
 // upsert saves an obj with its key, or updates key with obj if it exists in this Store
 func (s *Store) upsert(key string, obj any) error {
-	tx, err := s.BeginTx(context.Background(), true)
+	tx, err := s.BeginTx(s.ctx, true)
 	if err != nil {
 		return err
 	}
@@ -138,7 +140,7 @@ func (s *Store) upsert(key string, obj any) error {
 
 // deleteByKey deletes the object associated with key, if it exists in this Store
 func (s *Store) deleteByKey(key string) error {
-	tx, err := s.BeginTx(context.Background(), true)
+	tx, err := s.BeginTx(s.ctx, true)
 	if err != nil {
 		return err
 	}
@@ -158,7 +160,7 @@ func (s *Store) deleteByKey(key string) error {
 
 // GetByKey returns the object associated with the given object's key
 func (s *Store) GetByKey(key string) (item any, exists bool, err error) {
-	rows, err := s.QueryForRows(context.TODO(), s.getStmt, key)
+	rows, err := s.QueryForRows(s.ctx, s.getStmt, key)
 	if err != nil {
 		return nil, false, &db.QueryError{QueryString: s.getQuery, Err: err}
 	}
@@ -213,7 +215,7 @@ func (s *Store) Delete(obj any) error {
 // List returns a list of all the currently known objects
 // Note: I/O errors will panic this function, as the interface signature does not allow returning errors
 func (s *Store) List() []any {
-	rows, err := s.QueryForRows(context.TODO(), s.listStmt)
+	rows, err := s.QueryForRows(s.ctx, s.listStmt)
 	if err != nil {
 		panic(&db.QueryError{QueryString: s.listQuery, Err: err})
 	}
@@ -228,7 +230,7 @@ func (s *Store) List() []any {
 // Note: Atm it doesn't appear returning nil in the case of an error has any detrimental effects. An error is not
 // uncommon enough nor does it appear to necessitate a panic.
 func (s *Store) ListKeys() []string {
-	rows, err := s.QueryForRows(context.TODO(), s.listKeysStmt)
+	rows, err := s.QueryForRows(s.ctx, s.listKeysStmt)
 	if err != nil {
 		fmt.Printf("Unexpected error in store.ListKeys: while executing query: %s got error: %v", s.listKeysQuery, err)
 		return []string{}
@@ -267,14 +269,14 @@ func (s *Store) Replace(objects []any, _ string) error {
 
 // replaceByKey will delete the contents of the Store, using instead the given key to obj map
 func (s *Store) replaceByKey(objects map[string]any) error {
-	txC, err := s.BeginTx(context.Background(), true)
+	txC, err := s.BeginTx(s.ctx, true)
 	if err != nil {
 		return err
 	}
 
 	txCListKeys := txC.Stmt(s.listKeysStmt)
 
-	rows, err := s.QueryForRows(context.TODO(), txCListKeys)
+	rows, err := s.QueryForRows(s.ctx, txCListKeys)
 	if err != nil {
 		return err
 	}
