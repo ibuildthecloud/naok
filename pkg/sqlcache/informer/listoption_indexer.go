@@ -108,7 +108,7 @@ func NewListOptionIndexer(ctx context.Context, fields [][]string, s Store, names
 		columnDefs[index] = column
 	}
 
-	tx, err := l.BeginTx(context.Background(), true)
+	tx, err := l.BeginTx(ctx, true)
 	if err != nil {
 		return nil, err
 	}

@@ -37,11 +37,11 @@ var newInformer = cache.NewSharedIndexInformer
 func NewInformer(ctx context.Context, client dynamic.ResourceInterface, fields [][]string, transform cache.TransformFunc, gvk schema.GroupVersionKind, db sqlStore.DBClient, shouldEncrypt bool, namespaced bool) (*Informer, error) {
 	listWatcher := &cache.ListWatch{
 		ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
-			a, err := client.List(context.Background(), options)
+			a, err := client.List(ctx, options)
 			return a, err
 		},
 		WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
-			return client.Watch(context.Background(), options)
+			return client.Watch(ctx, options)
 		},
 	}
 
