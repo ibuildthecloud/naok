@@ -56,7 +56,7 @@ func TestNewIndexer(t *testing.T) {
 		store.EXPECT().Prepare(fmt.Sprintf(listByIndexFmt, storeName, storeName))
 		store.EXPECT().Prepare(fmt.Sprintf(listKeyByIndexFmt, storeName))
 		store.EXPECT().Prepare(fmt.Sprintf(listIndexValuesFmt, storeName))
-		indexer, err := NewIndexer(indexers, store)
+		indexer, err := NewIndexer(context.Background(), indexers, store)
 		assert.Nil(t, err)
 		assert.Equal(t, cache.Indexers(indexers), indexer.indexers)
 	}})
@@ -70,7 +70,7 @@ func TestNewIndexer(t *testing.T) {
 			},
 		}
 		store.EXPECT().BeginTx(gomock.Any(), true).Return(nil, fmt.Errorf("error"))
-		_, err := NewIndexer(indexers, store)
+		_, err := NewIndexer(context.Background(), indexers, store)
 		assert.NotNil(t, err)
 	}})
 	tests = append(tests, testCase{description: "NewIndexer() with TXClient Exec() error on first call to Exec(), should return error", test: func(t *testing.T) {
@@ -87,7 +87,7 @@ func TestNewIndexer(t *testing.T) {
 		store.EXPECT().BeginTx(gomock.Any(), true).Return(client, nil)
 		store.EXPECT().GetName().AnyTimes().Return(storeName)
 		client.EXPECT().Exec(fmt.Sprintf(createTableFmt, storeName, storeName)).Return(fmt.Errorf("error"))
-		_, err := NewIndexer(indexers, store)
+		_, err := NewIndexer(context.Background(), indexers, store)
 		assert.NotNil(t, err)
 	}})
 	tests = append(tests, testCase{description: "NewIndexer() with TXClient Exec() error on second call to Exec(), should return error", test: func(t *testing.T) {
@@ -105,7 +105,7 @@ func TestNewIndexer(t *testing.T) {
 		store.EXPECT().GetName().AnyTimes().Return(storeName)
 		client.EXPECT().Exec(fmt.Sprintf(createTableFmt, storeName, storeName)).Return(nil)
 		client.EXPECT().Exec(fmt.Sprintf(createIndexFmt, storeName, storeName)).Return(fmt.Errorf("error"))
-		_, err := NewIndexer(indexers, store)
+		_, err := NewIndexer(context.Background(), indexers, store)
 		assert.NotNil(t, err)
 	}})
 	tests = append(tests, testCase{description: "NewIndexer() with TXClient Commit() error, should return error", test: func(t *testing.T) {
@@ -124,7 +124,7 @@ func TestNewIndexer(t *testing.T) {
 		client.EXPECT().Exec(fmt.Sprintf(createTableFmt, storeName, storeName)).Return(nil)
 		client.EXPECT().Exec(fmt.Sprintf(createIndexFmt, storeName, storeName)).Return(nil)
 		client.EXPECT().Commit().Return(fmt.Errorf("error"))
-		_, err := NewIndexer(indexers, store)
+		_, err := NewIndexer(context.Background(), indexers, store)
 		assert.NotNil(t, err)
 	}})
 	t.Parallel()
