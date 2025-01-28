@@ -189,7 +189,7 @@ func (i *Indexer) Index(indexName string, obj any) (result []any, err error) {
 	defer func() {
 		cerr := i.CloseStmt(stmt)
 		if cerr != nil {
-			err = errors.Join(err, cerr)
+			err = errors.Join(err, &db.QueryError{QueryString: query, Err: cerr})
 		}
 	}()
 	// HACK: Query will accept []any but not []string

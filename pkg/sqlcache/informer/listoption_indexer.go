@@ -468,7 +468,7 @@ func (l *ListOptionIndexer) executeQuery(ctx context.Context, queryInfo *QueryIn
 	defer func() {
 		cerr := l.CloseStmt(stmt)
 		if cerr != nil {
-			err = errors.Join(err, cerr)
+			err = errors.Join(err, &db.QueryError{QueryString: queryInfo.query, Err: cerr})
 		}
 	}()
 
@@ -499,7 +499,7 @@ func (l *ListOptionIndexer) executeQuery(ctx context.Context, queryInfo *QueryIn
 		defer func() {
 			cerr := l.CloseStmt(countStmt)
 			if cerr != nil {
-				err = errors.Join(err, cerr)
+				err = errors.Join(err, &db.QueryError{QueryString: queryInfo.countQuery, Err: cerr})
 			}
 		}()
 		txStmt := tx.Stmt(countStmt)
