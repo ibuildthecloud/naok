@@ -3,6 +3,7 @@ package informer
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -158,7 +159,7 @@ func (i *Indexer) AfterUpsert(key string, obj any, tx db.TXClient) error {
 /* Satisfy cache.Indexer */
 
 // Index returns a list of items that match the given object on the index function
-func (i *Indexer) Index(indexName string, obj any) ([]any, error) {
+func (i *Indexer) Index(indexName string, obj any) (result []any, err error) {
 	i.indexersLock.RLock()
 	defer i.indexersLock.RUnlock()
 	indexFunc := i.indexers[indexName]
@@ -184,7 +185,13 @@ func (i *Indexer) Index(indexName string, obj any) ([]any, error) {
 	// HACK: sql.Statement.Query does not allow to pass slices in as of go 1.19 - create an ad-hoc statement
 	query := fmt.Sprintf(selectQueryFmt, db.Sanitize(i.GetName()), strings.Repeat(", ?", len(values)-1))
 	stmt := i.Prepare(query)
-	defer i.CloseStmt(stmt)
+
+	defer func() {
+		cerr := i.CloseStmt(stmt)
+		if cerr != nil {
+			err = errors.Join(err, &db.QueryError{QueryString: query, Err: cerr})
+		}
+	}()
 	// HACK: Query will accept []any but not []string
 	params := []any{indexName}
 	for _, value := range values {
