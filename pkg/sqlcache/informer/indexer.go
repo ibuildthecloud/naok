@@ -84,8 +84,8 @@ type DBClient interface {
 }
 
 // NewIndexer returns a cache.Indexer backed by SQLite for objects of the given example type
-func NewIndexer(indexers cache.Indexers, s Store) (*Indexer, error) {
 	tx, err := s.BeginTx(context.Background(), true)
+func NewIndexer(ctx context.Context, indexers cache.Indexers, s Store) (*Indexer, error) {
 	if err != nil {
 		return nil, err
 	}
